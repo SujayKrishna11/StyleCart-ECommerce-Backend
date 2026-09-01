@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="StyleCart.API/StyleCart.API.csproj" />
+  <Project Path="StyleCart.Application/StyleCart.Application.csproj" />
+  <Project Path="StyleCart.Domain/StyleCart.Domain.csproj" />
+  <Project Path="StyleCart.Infrastructure/StyleCart.Infrastructure.csproj" />
+  <Project Path="StyleCart.IntegrationTests/StyleCart.IntegrationTests.csproj" />
+  <Project Path="StyleCart.UnitTests/StyleCart.UnitTests.csproj" />
+</Solution>
