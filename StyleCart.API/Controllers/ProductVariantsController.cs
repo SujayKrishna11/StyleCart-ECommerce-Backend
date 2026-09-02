@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StyleCart.Application.DTOs.ProductVariants;
 using StyleCart.Application.Interfaces;
 
@@ -37,6 +38,7 @@ public class ProductVariantsController : ControllerBase
         return variant is null ? NotFound() : Ok(variant);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<ProductVariantResponse>> Create(
         CreateProductVariantRequest request,
@@ -47,6 +49,7 @@ public class ProductVariantsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = variant.Id }, variant);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
         int id,
@@ -58,6 +61,7 @@ public class ProductVariantsController : ControllerBase
         return updated ? NoContent() : NotFound();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(
         int id,

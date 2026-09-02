@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StyleCart.Application.DTOs.Inventory;
 using StyleCart.Application.Interfaces;
 
@@ -27,6 +28,7 @@ public class InventoryController : ControllerBase
         return inventory is null ? NotFound() : Ok(inventory);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<InventoryResponse>> Create(
         CreateInventoryRequest request,
@@ -40,6 +42,7 @@ public class InventoryController : ControllerBase
             inventory);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("product-variant/{productVariantId:int}")]
     public async Task<IActionResult> Update(
         int productVariantId,
