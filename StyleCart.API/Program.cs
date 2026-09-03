@@ -9,6 +9,7 @@ using StyleCart.Infrastructure.Data;
 using StyleCart.Infrastructure.Identity;
 using StyleCart.Infrastructure.Repositories;
 using System.Text;
+using StyleCart.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +102,8 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 using (var scope = app.Services.CreateScope())
 {
     await IdentityDataSeeder.SeedAsync(scope.ServiceProvider);
@@ -117,3 +120,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}
