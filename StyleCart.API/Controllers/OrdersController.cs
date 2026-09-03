@@ -66,6 +66,20 @@ public class OrdersController : ControllerBase
         return order is null ? NotFound() : Ok(order);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{orderId:int}/status")]
+    public async Task<IActionResult> UpdateStatus(
+    int orderId,
+    UpdateOrderStatusRequest request,
+    CancellationToken cancellationToken)
+    {
+        var updated = await _orderService.UpdateStatusAsync(
+            orderId,
+            request,
+            cancellationToken);
+
+        return updated ? NoContent() : NotFound();
+    }
     private string GetUserId()
     {
         return User.FindFirstValue(ClaimTypes.NameIdentifier)

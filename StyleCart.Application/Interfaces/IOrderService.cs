@@ -19,4 +19,9 @@ public interface IOrderService
     Task<OrderResponse?> GetByIdAsync(
         int orderId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> UpdateStatusAsync(
+    int orderId,
+    UpdateOrderStatusRequest request,
+    CancellationToken cancellationToken = default);
 }

@@ -146,6 +146,34 @@ public class OrderService : IOrderService
         return order is null ? null : MapToResponse(order);
     }
 
+    public async Task<bool> UpdateStatusAsync(
+        int orderId,
+        UpdateOrderStatusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (!Enum.TryParse<OrderStatus>(
+                request.OrderStatus,
+                ignoreCase: true,
+                out var newStatus))
+        {
+            throw new InvalidOperationException(
+                "Invalid order status. Use Processing, Shipped, Delivered, or Cancelled.");
+        }
+
+        var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+
+        if (order is null)
+        {
+            return false;
+        }
+
+        order.OrderStatus = newStatus;
+
+        await _orderRepository.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
     private static void ValidateCheckoutRequest(CheckoutRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.RecipientName) ||

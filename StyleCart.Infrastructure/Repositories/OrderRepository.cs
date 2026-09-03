@@ -41,7 +41,6 @@ public class OrderRepository : IOrderRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.Orders
-            .AsNoTracking()
             .Include(order => order.Items)
             .FirstOrDefaultAsync(order => order.Id == orderId, cancellationToken);
     }
