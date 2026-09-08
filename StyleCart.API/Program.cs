@@ -10,6 +10,8 @@ using StyleCart.Infrastructure.Identity;
 using StyleCart.Infrastructure.Repositories;
 using System.Text;
 using StyleCart.API.Middleware;
+using StyleCart.Infrastructure.Caching;
+using StyleCart.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,11 +64,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
+
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductBulkImportService, ExcelProductBulkImportService>();
 
 builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
 builder.Services.AddScoped<IProductVariantService, ProductVariantService>();

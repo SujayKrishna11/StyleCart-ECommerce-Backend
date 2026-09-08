@@ -6,15 +6,20 @@ namespace StyleCart.Application.Services;
 
 public class ProductService : IProductService
 {
+    private const string ProductsCacheKey = "products:all";
+
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ICacheService _cacheService;
 
     public ProductService(
         IProductRepository productRepository,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        ICacheService cacheService)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _cacheService = cacheService;
     }
 
     public async Task<IReadOnlyList<ProductResponse>> GetAllAsync(
@@ -22,12 +27,39 @@ public class ProductService : IProductService
         int? categoryId = null,
         CancellationToken cancellationToken = default)
     {
+        var isUnfilteredRequest =
+            string.IsNullOrWhiteSpace(search) &&
+            !categoryId.HasValue;
+
+        if (isUnfilteredRequest)
+        {
+            var cachedProducts = await _cacheService.GetAsync<IReadOnlyList<ProductResponse>>(
+                ProductsCacheKey,
+                cancellationToken);
+
+            if (cachedProducts is not null)
+            {
+                return cachedProducts;
+            }
+        }
+
         var products = await _productRepository.GetAllAsync(
             search,
             categoryId,
             cancellationToken);
 
-        return products.Select(MapToResponse).ToList();
+        var responses = products.Select(MapToResponse).ToList();
+
+        if (isUnfilteredRequest)
+        {
+            await _cacheService.SetAsync(
+                ProductsCacheKey,
+                responses,
+                TimeSpan.FromMinutes(5),
+                cancellationToken);
+        }
+
+        return responses;
     }
 
     public async Task<ProductResponse?> GetByIdAsync(
@@ -83,6 +115,8 @@ public class ProductService : IProductService
         await _productRepository.AddAsync(product, cancellationToken);
         await _productRepository.SaveChangesAsync(cancellationToken);
 
+        await _cacheService.RemoveAsync(ProductsCacheKey, cancellationToken);
+
         return MapToResponse(product);
     }
 
@@ -137,6 +171,8 @@ public class ProductService : IProductService
         _productRepository.Update(product);
         await _productRepository.SaveChangesAsync(cancellationToken);
 
+        await _cacheService.RemoveAsync(ProductsCacheKey, cancellationToken);
+
         return true;
     }
 
@@ -153,6 +189,8 @@ public class ProductService : IProductService
 
         _productRepository.Remove(product);
         await _productRepository.SaveChangesAsync(cancellationToken);
+
+        await _cacheService.RemoveAsync(ProductsCacheKey, cancellationToken);
 
         return true;
     }

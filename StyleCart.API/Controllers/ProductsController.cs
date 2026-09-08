@@ -10,10 +10,14 @@ namespace StyleCart.API.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly IProductBulkImportService _productBulkImportService;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(
+        IProductService productService,
+        IProductBulkImportService productBulkImportService)
     {
         _productService = productService;
+        _productBulkImportService = productBulkImportService;
     }
 
     [HttpGet]
@@ -49,6 +53,43 @@ public class ProductsController : ControllerBase
         var product = await _productService.CreateAsync(request, cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("bulk-import")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<BulkProductImportResult>> BulkImport(
+        IFormFile file,
+        CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest(new
+            {
+                message = "Please upload a non-empty Excel file."
+            });
+        }
+
+        if (!string.Equals(
+                Path.GetExtension(file.FileName),
+                ".xlsx",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new
+            {
+                message = "Only .xlsx Excel files are supported."
+            });
+        }
+
+        await using var fileStream = file.OpenReadStream();
+
+        var result = await _productBulkImportService.ImportAsync(
+            fileStream,
+            cancellationToken);
+
+        return result.IsSuccessful
+            ? Ok(result)
+            : BadRequest(result);
     }
 
     [Authorize(Roles = "Admin")]
