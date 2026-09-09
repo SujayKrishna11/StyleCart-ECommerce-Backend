@@ -89,7 +89,10 @@ public class AuthService : IAuthService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var role = roles.FirstOrDefault() ?? "Customer";
+
+        var role = roles.Contains("Admin")
+            ? "Admin"
+            : roles.FirstOrDefault() ?? "Customer";
 
         return await CreateAuthResponseAsync(user, role);
     }
