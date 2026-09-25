@@ -36,6 +36,20 @@ public class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Product>> GetAvailableAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Products
+            .AsNoTracking()
+            .Where(product =>
+                product.IsActive &&
+                _dbContext.ProductVariants.Any(variant =>
+                    variant.ProductId == product.Id &&
+                    variant.IsActive))
+            .OrderBy(product => product.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Product?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken = default)

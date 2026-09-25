@@ -62,6 +62,14 @@ public class ProductService : IProductService
         return responses;
     }
 
+    public async Task<IReadOnlyList<ProductResponse>> GetAvailableAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var products = await _productRepository.GetAvailableAsync(cancellationToken);
+
+        return products.Select(MapToResponse).ToList();
+    }
+
     public async Task<ProductResponse?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken = default)

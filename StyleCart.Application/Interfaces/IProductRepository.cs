@@ -9,6 +9,9 @@ public interface IProductRepository
         int? categoryId = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Product>> GetAvailableAsync(
+        CancellationToken cancellationToken = default);
+
     Task<Product?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken = default);

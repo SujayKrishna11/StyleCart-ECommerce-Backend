@@ -2,6 +2,7 @@
 using StyleCart.Application.DTOs.Admin;
 using StyleCart.Application.Interfaces;
 using StyleCart.Infrastructure.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace StyleCart.Infrastructure.Services;
 
@@ -54,5 +55,30 @@ public class AdminUserService : IAdminUserService
             Email = user.Email!,
             Message = "User promoted to Admin successfully."
         };
+    }
+    public async Task<IReadOnlyList<AdminUserResponse>> GetAllUsersAsync(
+    CancellationToken cancellationToken = default)
+    {
+        var users = await _userManager.Users
+            .OrderBy(user => user.Email)
+            .ToListAsync(cancellationToken);
+
+        var responses = new List<AdminUserResponse>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            responses.Add(new AdminUserResponse
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email ?? string.Empty,
+                Roles = roles.ToList()
+            });
+        }
+
+        return responses;
     }
 }

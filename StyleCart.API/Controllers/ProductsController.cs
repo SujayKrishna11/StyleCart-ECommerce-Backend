@@ -34,6 +34,15 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    [HttpGet("available")]
+    public async Task<ActionResult<IReadOnlyList<ProductResponse>>> GetAvailable(
+        CancellationToken cancellationToken)
+    {
+        var products = await _productService.GetAvailableAsync(cancellationToken);
+
+        return Ok(products);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductResponse>> GetById(
         int id,

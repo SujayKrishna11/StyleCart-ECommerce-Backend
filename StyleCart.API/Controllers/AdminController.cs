@@ -30,4 +30,12 @@ public class AdminController : ControllerBase
             ? NotFound(new { message = "No user was found with this email address." })
             : Ok(response);
     }
+    [HttpGet("users")]
+    public async Task<ActionResult<IReadOnlyList<AdminUserResponse>>> GetAllUsers(
+    CancellationToken cancellationToken)
+    {
+        var users = await _adminUserService.GetAllUsersAsync(cancellationToken);
+
+        return Ok(users);
+    }
 }

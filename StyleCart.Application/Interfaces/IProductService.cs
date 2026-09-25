@@ -9,6 +9,9 @@ public interface IProductService
         int? categoryId = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ProductResponse>> GetAvailableAsync(
+        CancellationToken cancellationToken = default);
+
     Task<ProductResponse?> GetByIdAsync(
         int id,
         CancellationToken cancellationToken = default);

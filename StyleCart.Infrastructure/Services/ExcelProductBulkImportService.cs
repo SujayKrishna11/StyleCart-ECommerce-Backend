@@ -91,12 +91,6 @@ public class ExcelProductBulkImportService : IProductBulkImportService
             return result;
         }
 
-        if (lastRow - 1 > 100)
-        {
-            result.Errors.Add("A bulk import can contain a maximum of 100 products.");
-            return result;
-        }
-
         for (var rowNumber = 2; rowNumber <= lastRow; rowNumber++)
         {
             var categoryName = worksheet.Cell(rowNumber, 1).GetString().Trim();
